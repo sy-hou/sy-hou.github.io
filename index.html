@@ -5,65 +5,100 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Draw on Page</title>
 <style>
-    html, body {
+    body {
         margin: 0;
-        padding: 0;
-        overflow: hidden;
-        background: #ffffff;
         font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    h1 {
+        margin-top: 40px;
+    }
+
+    p {
+        max-width: 600px;
+        text-align: center;
     }
 
     #toolbar {
-        position: fixed;
-        top: 10px;
-        left: 10px;
-        background: rgba(255, 255, 255, 0.9);
-        padding: 10px;
+        margin: 20px 0;
+        padding: 10px 15px;
+        background: white;
         border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        z-index: 10;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    #canvasContainer {
+        background: white;
+        padding: 10px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 40px;
     }
 
     canvas {
-        position: absolute;
-        top: 0;
-        left: 0;
+        background: white;
+        cursor: crosshair;
+        border-radius: 8px;
+    }
+
+    button {
+        padding: 6px 12px;
+        cursor: pointer;
+    }
+
+    .active {
+        background-color: #333;
+        color: white;
     }
 </style>
 </head>
 <body>
+
+<h1>thats right</h1>
+<p>
+cooking up a webpage rn
+you can draw it for now
+</p>
 
 <div id="toolbar">
     <label>
         Color:
         <input type="color" id="colorPicker" value="#000000">
     </label>
-    <br><br>
+
     <label>
         Brush size:
         <input type="range" id="brushSize" min="1" max="50" value="5">
     </label>
-    <br><br>
+
+    <button id="drawMode" class="active">Draw</button>
+    <button id="eraseMode">Erase</button>
     <button onclick="clearCanvas()">Clear</button>
 </div>
 
-<canvas id="drawingCanvas"></canvas>
+<div id="canvasContainer">
+    <canvas id="drawingCanvas" width="800" height="500"></canvas>
+</div>
 
 <script>
 const canvas = document.getElementById("drawingCanvas");
 const ctx = canvas.getContext("2d");
 const colorPicker = document.getElementById("colorPicker");
 const brushSize = document.getElementById("brushSize");
+const drawModeBtn = document.getElementById("drawMode");
+const eraseModeBtn = document.getElementById("eraseMode");
 
 let drawing = false;
-
-// Resize canvas to full screen
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
+let mode = "draw";
 
 function startDrawing(e) {
     drawing = true;
@@ -84,13 +119,32 @@ function draw(e) {
 
     ctx.lineWidth = brushSize.value;
     ctx.lineCap = "round";
-    ctx.strokeStyle = colorPicker.value;
+
+    if (mode === "draw") {
+        ctx.globalCompositeOperation = "source-over";
+        ctx.strokeStyle = colorPicker.value;
+    } else {
+        ctx.globalCompositeOperation = "destination-out";
+    }
 
     ctx.lineTo(x, y);
     ctx.stroke();
     ctx.beginPath();
     ctx.moveTo(x, y);
 }
+
+// Mode switching
+drawModeBtn.addEventListener("click", () => {
+    mode = "draw";
+    drawModeBtn.classList.add("active");
+    eraseModeBtn.classList.remove("active");
+});
+
+eraseModeBtn.addEventListener("click", () => {
+    mode = "erase";
+    eraseModeBtn.classList.add("active");
+    drawModeBtn.classList.remove("active");
+});
 
 // Mouse events
 canvas.addEventListener("mousedown", startDrawing);
@@ -104,7 +158,6 @@ canvas.addEventListener("touchend", stopDrawing);
 canvas.addEventListener("touchcancel", stopDrawing);
 canvas.addEventListener("touchmove", draw);
 
-// Prevent scrolling while drawing on touch devices
 canvas.addEventListener("touchmove", function(e) {
     e.preventDefault();
 }, { passive: false });

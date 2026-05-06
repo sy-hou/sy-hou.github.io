@@ -3,187 +3,986 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>housseynou.com</title>
-
+<title>Your Training Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root {
-    --bg: #ffffff;
-    --text: #111111;
-    --panel: rgba(255,255,255,0.9);
-}
+  :root {
+    --court: #F4A623;
+    --court-dark: #C17D0A;
+    --dark: #0D0D0D;
+    --mid: #1A1A1A;
+    --card: #222222;
+    --border: #333333;
+    --text: #F0EDE8;
+    --muted: #888880;
+    --green: #4CAF76;
+    --blue: #4A90D9;
+    --red: #E05A5A;
+  }
 
-body.dark {
-    --bg: #111111;
-    --text: #f2f2f2;
-    --panel: rgba(30,30,30,0.9);
-}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: var(--bg);
+  body {
+    background: var(--dark);
     color: var(--text);
-}
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
 
-.content {
-    max-width: 800px;
-    margin: 80px auto;
-    padding: 20px;
-    text-align: center;
-}
-
-#toolbar {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--panel);
-    padding: 12px 20px;
-    border-radius: 1px;
+  /* HERO */
+  .hero {
+    background: var(--mid);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 24px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    border: 40px solid var(--court);
+    opacity: 0.07;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 40%;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    border: 30px solid var(--court);
+    opacity: 0.04;
+  }
+  .hero-inner { max-width: 680px; margin: 0 auto; position: relative; z-index: 1; }
+  .hero-tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--court);
+    background: rgba(244,166,35,0.1);
+    border: 1px solid rgba(244,166,35,0.25);
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(42px, 8vw, 72px);
+    line-height: 0.95;
+    letter-spacing: 0.02em;
+    margin-bottom: 16px;
+  }
+  .hero h1 span { color: var(--court); }
+  .hero p {
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 480px;
+  }
+  .stats-row {
     display: flex;
-    gap: 12px;
-    align-items: center;
+    gap: 24px;
+    margin-top: 28px;
     flex-wrap: wrap;
-    z-index: 1000;
-}
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--court);
+    line-height: 1;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
 
-button {
-    padding: 6px 12px;
-    cursor: pointer;
-}
-
-.active {
-    background: #333;
-    color: white;
-}
-
-/* Full-page drawing canvas */
-canvas {
-    position: fixed;
+  /* NAV */
+  .phase-nav {
+    position: sticky;
     top: 0;
-    left: 0;
-    z-index: 500;
-}
+    z-index: 100;
+    background: rgba(13,13,13,0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .phase-nav::-webkit-scrollbar { display: none; }
+  .nav-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 14px 20px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover { color: var(--text); }
+  .nav-btn.active { color: var(--court); border-bottom-color: var(--court); }
+
+  /* CONTENT */
+  .content { max-width: 680px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  .phase-section { display: none; }
+  .phase-section.active { display: block; }
+
+  /* PHASE HEADER */
+  .phase-header {
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .phase-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .phase-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 40px;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    margin-bottom: 10px;
+  }
+  .phase-title span { color: var(--court); }
+  .phase-desc { color: var(--muted); font-size: 14px; line-height: 1.6; }
+  .phase-goals {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+  .goal-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid;
+  }
+  .goal-tag.green { color: var(--green); border-color: rgba(76,175,118,0.3); background: rgba(76,175,118,0.07); }
+  .goal-tag.blue { color: var(--blue); border-color: rgba(74,144,217,0.3); background: rgba(74,144,217,0.07); }
+  .goal-tag.orange { color: var(--court); border-color: rgba(244,166,35,0.3); background: rgba(244,166,35,0.07); }
+
+  /* WEEK */
+  .week-block {
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .week-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    background: var(--card);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .week-header:hover { background: #272727; }
+  .week-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .week-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--court);
+    min-width: 70px;
+  }
+  .week-title { font-weight: 500; font-size: 14px; }
+  .week-sub { color: var(--muted); font-size: 12px; margin-top: 1px; }
+  .week-chevron {
+    color: var(--muted);
+    transition: transform 0.2s;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .week-block.open .week-chevron { transform: rotate(180deg); }
+
+  .week-body { display: none; padding: 18px; border-top: 1px solid var(--border); }
+  .week-block.open .week-body { display: block; }
+
+  /* DAY CARD */
+  .day-grid { display: flex; flex-direction: column; gap: 10px; }
+  .day-card {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .day-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+  }
+  .day-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .day-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 500;
+  }
+  .day-focus {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  .day-exercises { padding: 0 14px 12px; }
+  .exercise-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 13px;
+  }
+  .exercise-item:last-child { border-bottom: none; }
+  .ex-bullet {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--muted);
+    margin-top: 7px;
+    flex-shrink: 0;
+  }
+  .ex-name { flex: 1; color: var(--text); }
+  .ex-sets {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--court);
+    flex-shrink: 0;
+  }
+
+  .rest-card {
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: var(--muted);
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-align: center;
+  }
+
+  /* TIP BOX */
+  .tip-box {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: rgba(244,166,35,0.06);
+    border-left: 3px solid var(--court);
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .tip-box strong { color: var(--court); }
+
+  /* MILESTONES */
+  .milestones-section { margin-top: 32px; }
+  .milestones-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 0.02em;
+    margin-bottom: 16px;
+  }
+  .milestone-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .milestone-row:last-child { border-bottom: none; }
+  .m-week {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--court);
+    min-width: 56px;
+  }
+  .m-text { font-size: 14px; }
+  .m-check {
+    margin-left: auto;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+  }
+  .m-check.done { background: var(--green); border-color: var(--green); color: white; }
+
+  /* MEMBERSHIP CARD */
+  .membership-card {
+    margin-top: 32px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .mc-head {
+    padding: 16px 20px;
+    background: var(--card);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 0.02em;
+  }
+  .mc-head span { color: var(--court); }
+  .mc-body { padding: 18px 20px; }
+  .verdict {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .verdict-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 5px 12px;
+    border-radius: 4px;
+    background: rgba(76,175,118,0.12);
+    color: var(--green);
+    border: 1px solid rgba(76,175,118,0.3);
+  }
+  .mc-reason { font-size: 13px; color: var(--muted); line-height: 1.7; }
+  .mc-reason li { margin-left: 16px; margin-bottom: 4px; }
+
+  /* COLOR CODING */
+  .c-basketball { background: rgba(244,166,35,0.12); }
+  .c-gym { background: rgba(74,144,217,0.08); }
+  .c-plyo { background: rgba(224,90,90,0.08); }
+  .c-calisthenics { background: rgba(76,175,118,0.08); }
+  .c-rest { background: transparent; }
+
+  .dot-basketball { background: var(--court); }
+  .dot-gym { background: var(--blue); }
+  .dot-plyo { background: var(--red); }
+  .dot-calisthenics { background: var(--green); }
+  .dot-rest { background: var(--muted); }
 </style>
 </head>
-
 <body>
 
-<div id="toolbar">
-    <label>
-        Color:
-        <input type="color" id="colorPicker" value="#000000">
-    </label>
-
-    <label>
-        Size:
-        <input type="range" id="brushSize" min="1" max="50" value="5">
-    </label>
-
-    <button id="drawMode" class="active">Draw</button>
-    <button id="eraseMode">Erase</button>
-    <button onclick="clearCanvas()">Clear</button>
-    <button onclick="toggleDarkMode()">Dark Mode</button>
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">9-Month Programme · 6'1" · 64kg</div>
+    <h1>YOUR ROAD TO<br><span>COMPETITIVE</span><br>BASKETBALL</h1>
+    <p>Built around your college Wednesday gym session, evening schedule, and nearby court. 4–5 days/week.</p>
+    <div class="stats-row">
+      <div class="stat"><span class="stat-val">36</span><span class="stat-label">Weeks</span></div>
+      <div class="stat"><span class="stat-val">3</span><span class="stat-label">Phases</span></div>
+      <div class="stat"><span class="stat-val">50</span><span class="stat-label">Pushup goal</span></div>
+      <div class="stat"><span class="stat-val">0→1</span><span class="stat-label">Competitive</span></div>
+    </div>
+  </div>
 </div>
 
-<div class="content">
-    <h1>thats right</h1>
-    <p>
-        cooking up a webpage rn 
-        you can draw it for now
-    </p>
+<nav class="phase-nav">
+  <button class="nav-btn active" onclick="showPhase('p1')">Phase 1</button>
+  <button class="nav-btn" onclick="showPhase('p2')">Phase 2</button>
+  <button class="nav-btn" onclick="showPhase('p3')">Phase 3</button>
+  <button class="nav-btn" onclick="showPhase('milestones')">Milestones</button>
+  <button class="nav-btn" onclick="showPhase('membership')">Membership?</button>
+</nav>
 
-<canvas id="drawingCanvas"></canvas>
+<div class="content">
+
+  <!-- PHASE 1 -->
+  <div class="phase-section active" id="p1">
+    <div class="phase-header">
+      <div class="phase-number">Phase 01 · Weeks 1–8</div>
+      <div class="phase-title">LAYING THE <span>FOUNDATION</span></div>
+      <div class="phase-desc">Build base fitness, learn movement patterns, get comfortable with the ball. At 64kg your priority is building functional strength and body control before intensity increases.</div>
+      <div class="phase-goals">
+        <span class="goal-tag green">Reach 15 pushups</span>
+        <span class="goal-tag blue">Learn basketball fundamentals</span>
+        <span class="goal-tag orange">Build weekly gym habit</span>
+      </div>
+    </div>
+
+    <!-- WEEKS 1-2 -->
+    <div class="week-block open" id="w1">
+      <div class="week-header" onclick="toggleWeek('w1')">
+        <div class="week-label">
+          <div class="week-num">WK 1–2</div>
+          <div><div class="week-title">Getting Started</div><div class="week-sub">Ease in — 4 days, low intensity</div></div>
+        </div>
+        <span class="week-chevron">▾</span>
+      </div>
+      <div class="week-body">
+        <div class="day-grid">
+
+          <div class="day-card c-calisthenics">
+            <div class="day-head"><div class="day-dot dot-calisthenics"></div><div class="day-name">Monday</div><div class="day-focus">Calisthenics + Pushups</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Knee pushups (or full if able)</div><div class="ex-sets">3 × 5</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Bodyweight squats</div><div class="ex-sets">3 × 12</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Plank hold</div><div class="ex-sets">3 × 20s</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Glute bridges</div><div class="ex-sets">3 × 12</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Dead hangs (if bar available)</div><div class="ex-sets">3 × 10s</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-gym">
+            <div class="day-head"><div class="day-dot dot-gym"></div><div class="day-name">Wednesday</div><div class="day-focus">College Gym (Full Body)</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Goblet squat</div><div class="ex-sets">3 × 10</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Lat pulldown</div><div class="ex-sets">3 × 10</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Dumbbell bench press</div><div class="ex-sets">3 × 10</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Romanian deadlift (light)</div><div class="ex-sets">3 × 10</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Plank</div><div class="ex-sets">3 × 25s</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-basketball">
+            <div class="day-head"><div class="day-dot dot-basketball"></div><div class="day-name">Friday</div><div class="day-focus">Basketball Skills (Solo Court)</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Stationary dribbling — right hand</div><div class="ex-sets">3 min</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Stationary dribbling — left hand</div><div class="ex-sets">3 min</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Walking dribble end-to-end</div><div class="ex-sets">10 laps</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Layup form (right side, slow)</div><div class="ex-sets">20 reps</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Free throws (BEEF technique)</div><div class="ex-sets">30 shots</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-plyo">
+            <div class="day-head"><div class="day-dot dot-plyo"></div><div class="day-name">Saturday</div><div class="day-focus">Beginner Plyometrics</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Jump rope (or simulate)</div><div class="ex-sets">5 min</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Box step-ups</div><div class="ex-sets">3 × 10 each</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Broad jumps</div><div class="ex-sets">3 × 5</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Lateral side-to-side bounds</div><div class="ex-sets">3 × 8</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Defensive slide drill</div><div class="ex-sets">4 × 20m</div></div>
+            </div>
+          </div>
+
+        </div>
+        <div class="tip-box"><strong>Week 1–2 Tip:</strong> Use full rest days on Tue, Thu, Sun. Don't go hard — your tendons need time to adapt. Soreness is okay, sharp pain is not.</div>
+      </div>
+    </div>
+
+    <!-- WEEKS 3-4 -->
+    <div class="week-block" id="w3">
+      <div class="week-header" onclick="toggleWeek('w3')">
+        <div class="week-label">
+          <div class="week-num">WK 3–4</div>
+          <div><div class="week-title">Building Rhythm</div><div class="week-sub">Add 5th day, increase pushup reps</div></div>
+        </div>
+        <span class="week-chevron">▾</span>
+      </div>
+      <div class="week-body">
+        <div class="day-grid">
+          <div class="day-card c-calisthenics">
+            <div class="day-head"><div class="day-dot dot-calisthenics"></div><div class="day-name">Monday</div><div class="day-focus">Calisthenics + Pushups</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Full pushups</div><div class="ex-sets">3 × 7</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Jump squats (low)</div><div class="ex-sets">3 × 8</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Plank hold</div><div class="ex-sets">3 × 30s</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Mountain climbers</div><div class="ex-sets">3 × 20</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Superman holds</div><div class="ex-sets">3 × 10</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-basketball">
+            <div class="day-head"><div class="day-dot dot-basketball"></div><div class="day-name">Tuesday</div><div class="day-focus">Ball Handling (NEW day)</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Two-ball dribbling drill</div><div class="ex-sets">5 min</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Figure-8 dribble</div><div class="ex-sets">3 min</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Speed dribble end-to-end</div><div class="ex-sets">8 laps</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Layups — right + left hand</div><div class="ex-sets">30 each</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-gym">
+            <div class="day-head"><div class="day-dot dot-gym"></div><div class="day-name">Wednesday</div><div class="day-focus">College Gym — Increase Load</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Goblet squat (+2.5kg)</div><div class="ex-sets">3 × 12</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Lat pulldown (+5kg)</div><div class="ex-sets">3 × 10</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">DB bench press (+2kg)</div><div class="ex-sets">3 × 10</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Romanian deadlift</div><div class="ex-sets">3 × 10</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Cable rows</div><div class="ex-sets">3 × 10</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-basketball">
+            <div class="day-head"><div class="day-dot dot-basketball"></div><div class="day-name">Friday</div><div class="day-focus">Basketball Skills + Conditioning</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Jog 2 laps warm-up</div><div class="ex-sets">—</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Dribble + crossover drills</div><div class="ex-sets">10 min</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Jump shots 5–8 feet</div><div class="ex-sets">40 shots</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Suicides (court sprints)</div><div class="ex-sets">5 rounds</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-plyo">
+            <div class="day-head"><div class="day-dot dot-plyo"></div><div class="day-name">Saturday</div><div class="day-focus">Plyometrics + Ball Work</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Jump rope</div><div class="ex-sets">8 min</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Box step-ups (increase height)</div><div class="ex-sets">4 × 10</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Broad jumps</div><div class="ex-sets">4 × 6</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Wall sits</div><div class="ex-sets">3 × 40s</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Free shooting practice</div><div class="ex-sets">20 min</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="tip-box"><strong>Pushup check:</strong> You should be doing 7 clean full pushups by Week 3. If not, stay at knee pushups and add 1 rep per session.</div>
+      </div>
+    </div>
+
+    <!-- WEEKS 5-8 -->
+    <div class="week-block" id="w5">
+      <div class="week-header" onclick="toggleWeek('w5')">
+        <div class="week-label">
+          <div class="week-num">WK 5–8</div>
+          <div><div class="week-title">Consolidation</div><div class="week-sub">Push to 15 pushups, introduce court runs</div></div>
+        </div>
+        <span class="week-chevron">▾</span>
+      </div>
+      <div class="week-body">
+        <div class="day-grid">
+          <div class="day-card c-calisthenics">
+            <div class="day-head"><div class="day-dot dot-calisthenics"></div><div class="day-name">Monday</div><div class="day-focus">Calisthenics Push</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Pushups — add 1 rep each week</div><div class="ex-sets">3 × 10–15</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Pike pushups</div><div class="ex-sets">3 × 8</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Side plank each side</div><div class="ex-sets">3 × 25s</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Jump squats</div><div class="ex-sets">4 × 10</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Hollow body hold</div><div class="ex-sets">3 × 20s</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-basketball">
+            <div class="day-head"><div class="day-dot dot-basketball"></div><div class="day-name">Tuesday</div><div class="day-focus">Ball Handling + Shooting</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Full ball handling routine</div><div class="ex-sets">15 min</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Layups both hands</div><div class="ex-sets">40 each</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Mid-range jump shots</div><div class="ex-sets">50 shots</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">3-man weave (solo simulation)</div><div class="ex-sets">10 min</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-gym">
+            <div class="day-head"><div class="day-dot dot-gym"></div><div class="day-name">Wednesday</div><div class="day-focus">College Gym — Progressive Overload</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Barbell squat (intro)</div><div class="ex-sets">3 × 8</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Pull-ups (assisted)</div><div class="ex-sets">3 × 5</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">DB bench press</div><div class="ex-sets">4 × 8</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Romanian deadlift</div><div class="ex-sets">4 × 8</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Plank + ab wheel</div><div class="ex-sets">3 × 30s</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-plyo">
+            <div class="day-head"><div class="day-dot dot-plyo"></div><div class="day-name">Friday</div><div class="day-focus">Plyometrics + Conditioning</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Jump rope intervals</div><div class="ex-sets">10 min</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Box jumps (low box)</div><div class="ex-sets">4 × 5</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Lateral hurdle hops</div><div class="ex-sets">3 × 10</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Court suicides</div><div class="ex-sets">6 rounds</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-basketball">
+            <div class="day-head"><div class="day-dot dot-basketball"></div><div class="day-name">Saturday</div><div class="day-focus">Full Basketball Session</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Ball handling warm-up</div><div class="ex-sets">10 min</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Shooting — all zones</div><div class="ex-sets">60 shots</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Defensive footwork drills</div><div class="ex-sets">10 min</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Find open pickup game if possible</div><div class="ex-sets">—</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="tip-box"><strong>Phase 1 End Goal:</strong> By Week 8 you should hit 15 clean pushups, make ~50% of free throws, and be comfortable dribbling at speed with both hands.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 2 -->
+  <div class="phase-section" id="p2">
+    <div class="phase-header">
+      <div class="phase-number">Phase 02 · Weeks 9–20</div>
+      <div class="phase-title">BUILDING <span>ATHLETICISM</span></div>
+      <div class="phase-desc">Intensity increases significantly. You'll start playing pickup games, develop real court awareness, and push toward 35 pushups. The gym becomes essential here for explosive leg development.</div>
+      <div class="phase-goals">
+        <span class="goal-tag green">Reach 35 pushups</span>
+        <span class="goal-tag blue">Join first pickup game</span>
+        <span class="goal-tag orange">Develop vertical & speed</span>
+      </div>
+    </div>
+
+    <div class="week-block open" id="w9">
+      <div class="week-header" onclick="toggleWeek('w9')">
+        <div class="week-label">
+          <div class="week-num">WK 9–12</div>
+          <div><div class="week-title">Power Introduction</div><div class="week-sub">Split gym sessions, add depth jumps</div></div>
+        </div>
+        <span class="week-chevron">▾</span>
+      </div>
+      <div class="week-body">
+        <div class="day-grid">
+          <div class="day-card c-calisthenics">
+            <div class="day-head"><div class="day-dot dot-calisthenics"></div><div class="day-name">Monday</div><div class="day-focus">Upper Calisthenics</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Pushups — standard</div><div class="ex-sets">4 × 15</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Archer pushups (intro)</div><div class="ex-sets">3 × 5 each</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Decline pushups</div><div class="ex-sets">3 × 10</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Pull-ups (or jumping negatives)</div><div class="ex-sets">4 × 4</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Dips (parallel bars)</div><div class="ex-sets">3 × 8</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-gym">
+            <div class="day-head"><div class="day-dot dot-gym"></div><div class="day-name">Tuesday</div><div class="day-focus">Lower Body Power (Own Gym)</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Barbell squat</div><div class="ex-sets">4 × 6</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Bulgarian split squat</div><div class="ex-sets">3 × 8 each</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Romanian deadlift</div><div class="ex-sets">4 × 8</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Box jumps</div><div class="ex-sets">4 × 5</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Calf raises</div><div class="ex-sets">4 × 15</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-gym">
+            <div class="day-head"><div class="day-dot dot-gym"></div><div class="day-name">Wednesday</div><div class="day-focus">College Gym — Upper Body</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Bench press</div><div class="ex-sets">4 × 8</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Pull-ups</div><div class="ex-sets">4 × 6</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">DB shoulder press</div><div class="ex-sets">3 × 10</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Cable rows</div><div class="ex-sets">3 × 10</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Ab wheel rollouts</div><div class="ex-sets">3 × 10</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-basketball">
+            <div class="day-head"><div class="day-dot dot-basketball"></div><div class="day-name">Friday</div><div class="day-focus">Basketball — Pickup Game</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Individual warm-up drills</div><div class="ex-sets">15 min</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Pickup game or open gym</div><div class="ex-sets">60–90 min</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Post-game shooting cool-down</div><div class="ex-sets">20 shots</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-plyo">
+            <div class="day-head"><div class="day-dot dot-plyo"></div><div class="day-name">Saturday</div><div class="day-focus">Intermediate Plyometrics</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Depth jumps</div><div class="ex-sets">4 × 5</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Single-leg bounds</div><div class="ex-sets">3 × 8 each</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Lateral hurdle hops</div><div class="ex-sets">3 × 10</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Tuck jumps</div><div class="ex-sets">3 × 8</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Sprint ladders (10m, 20m, full)</div><div class="ex-sets">3 sets</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="tip-box"><strong>Own gym vs college gym:</strong> Use Tuesday at your own gym for legs and lower body power — this is the critical gap your college session doesn't cover. See membership verdict below.</div>
+      </div>
+    </div>
+
+    <div class="week-block" id="w13">
+      <div class="week-header" onclick="toggleWeek('w13')">
+        <div class="week-label">
+          <div class="week-num">WK 13–16</div>
+          <div><div class="week-title">Court Confidence</div><div class="week-sub">Regular pickup games, skill refinement</div></div>
+        </div>
+        <span class="week-chevron">▾</span>
+      </div>
+      <div class="week-body">
+        <div class="day-grid">
+          <div class="day-card c-calisthenics">
+            <div class="day-head"><div class="day-dot dot-calisthenics"></div><div class="day-name">Monday</div><div class="day-focus">Calisthenics + Pushup Push</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Max set pushups (test yourself)</div><div class="ex-sets">1 × max</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Decline pushups</div><div class="ex-sets">4 × 12</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Archer pushups</div><div class="ex-sets">3 × 7 each</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Pull-ups</div><div class="ex-sets">4 × 6</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">L-sit hold (parallel bars)</div><div class="ex-sets">3 × 10s</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-gym">
+            <div class="day-head"><div class="day-dot dot-gym"></div><div class="day-name">Tuesday</div><div class="day-focus">Lower Power + Speed</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Front squat</div><div class="ex-sets">4 × 5</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Trap bar deadlift</div><div class="ex-sets">4 × 5</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Walking lunges with DBs</div><div class="ex-sets">3 × 10 each</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Power clean (intro, light)</div><div class="ex-sets">3 × 5</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Seated calf raises</div><div class="ex-sets">4 × 20</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-gym">
+            <div class="day-head"><div class="day-dot dot-gym"></div><div class="day-name">Wednesday</div><div class="day-focus">College Gym — Upper + Core</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Weighted pushups / bench press</div><div class="ex-sets">4 × 8</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Pull-ups</div><div class="ex-sets">4 × 7</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Cable face pulls</div><div class="ex-sets">3 × 15</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Hanging leg raises</div><div class="ex-sets">3 × 12</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Pallof press</div><div class="ex-sets">3 × 12 each</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-basketball">
+            <div class="day-head"><div class="day-dot dot-basketball"></div><div class="day-name">Fri + Sat</div><div class="day-focus">Basketball — Skills & Games</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Friday: Skill work — V-cuts, screens, closeouts</div><div class="ex-sets">45 min</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Friday: Shooting — mid-range zones</div><div class="ex-sets">60 shots</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Saturday: Pickup game</div><div class="ex-sets">90+ min</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Saturday: Plyometrics circuit after game</div><div class="ex-sets">20 min</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="tip-box"><strong>Weeks 13–16:</strong> You should be hitting pickup games regularly. Focus on learning defensive principles and how to move without the ball — beginners rarely do this.</div>
+      </div>
+    </div>
+
+    <div class="week-block" id="w17">
+      <div class="week-header" onclick="toggleWeek('w17')">
+        <div class="week-label">
+          <div class="week-num">WK 17–20</div>
+          <div><div class="week-title">Pre-Competitive Prep</div><div class="week-sub">35 pushup target, league research</div></div>
+        </div>
+        <span class="week-chevron">▾</span>
+      </div>
+      <div class="week-body">
+        <div class="day-grid">
+          <div class="day-card c-calisthenics">
+            <div class="day-head"><div class="day-dot dot-calisthenics"></div><div class="day-name">Monday</div><div class="day-focus">Calisthenics — 35 Push Target</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Pushup ladder: 10-8-8-5-4</div><div class="ex-sets">= 35 reps</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Diamond pushups</div><div class="ex-sets">3 × 10</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Wide grip pushups</div><div class="ex-sets">3 × 12</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Pull-ups</div><div class="ex-sets">4 × 8</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Dips</div><div class="ex-sets">4 × 10</div></div>
+            </div>
+          </div>
+          <div class="day-card c-gym">
+            <div class="day-head"><div class="day-dot dot-gym"></div><div class="day-name">Tue + Wed</div><div class="day-focus">Gym — Maintain Strength</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Tuesday: Legs — heavy squat + jump work</div><div class="ex-sets">60 min</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Wednesday: College — upper + explosive</div><div class="ex-sets">60 min</div></div>
+            </div>
+          </div>
+          <div class="day-card c-basketball">
+            <div class="day-head"><div class="day-dot dot-basketball"></div><div class="day-name">Thu / Fri / Sat</div><div class="day-focus">Basketball Heavy Week</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Thursday: Shooting + film study (watch NBA guards)</div><div class="ex-sets">—</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Friday: Pickup game</div><div class="ex-sets">90 min</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Saturday: Pickup game + skill drills</div><div class="ex-sets">2 hrs</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="tip-box"><strong>Action step:</strong> By Week 18, research local amateur basketball leagues (check your council website, YMCA, or uni noticeboards). Many have registration windows — sign up for Week 22+.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 3 -->
+  <div class="phase-section" id="p3">
+    <div class="phase-header">
+      <div class="phase-number">Phase 03 · Weeks 21–36</div>
+      <div class="phase-title">GOING <span>COMPETITIVE</span></div>
+      <div class="phase-desc">You're playing league basketball now. Training shifts to support performance — maintaining strength, preventing injury, and peaking your athleticism. The 50-pushup milestone is close.</div>
+      <div class="phase-goals">
+        <span class="goal-tag green">50 pushups unbroken</span>
+        <span class="goal-tag blue">Compete in amateur league</span>
+        <span class="goal-tag orange">Position-specific mastery</span>
+      </div>
+    </div>
+
+    <div class="week-block open" id="w21">
+      <div class="week-header" onclick="toggleWeek('w21')">
+        <div class="week-label">
+          <div class="week-num">WK 21–28</div>
+          <div><div class="week-title">In-Season Training</div><div class="week-sub">Games take priority, support with strength</div></div>
+        </div>
+        <span class="week-chevron">▾</span>
+      </div>
+      <div class="week-body">
+        <div class="day-grid">
+          <div class="day-card c-calisthenics">
+            <div class="day-head"><div class="day-dot dot-calisthenics"></div><div class="day-name">Monday</div><div class="day-focus">Calisthenics + Recovery</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Pushup ladder — building to 50</div><div class="ex-sets">10-9-8-7-6-5 = 45</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Pull-ups</div><div class="ex-sets">4 × 8</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Core circuit (plank, hollow, ab wheel)</div><div class="ex-sets">3 rounds</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Foam roll & mobility</div><div class="ex-sets">10 min</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-gym">
+            <div class="day-head"><div class="day-dot dot-gym"></div><div class="day-name">Tuesday</div><div class="day-focus">Gym — Lower Maintenance</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Squat (moderate weight)</div><div class="ex-sets">3 × 5</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Single-leg RDL</div><div class="ex-sets">3 × 8 each</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Box jumps</div><div class="ex-sets">3 × 5</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Hip flexor + ankle mobility</div><div class="ex-sets">10 min</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-gym">
+            <div class="day-head"><div class="day-dot dot-gym"></div><div class="day-name">Wednesday</div><div class="day-focus">College Gym — Upper Maintenance</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Bench / weighted pushup</div><div class="ex-sets">3 × 6</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Pull-ups</div><div class="ex-sets">4 × 8</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Shoulder health circuit</div><div class="ex-sets">3 × 15</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Rotator cuff work</div><div class="ex-sets">3 × 15 each</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-basketball">
+            <div class="day-head"><div class="day-dot dot-basketball"></div><div class="day-name">Thu / Sat</div><div class="day-focus">Practice + Game Day</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Thursday: Team/solo skill practice</div><div class="ex-sets">60–90 min</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Saturday: League game</div><div class="ex-sets">Match</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Post-game: 10 min stretching routine</div><div class="ex-sets">Always</div></div>
+            </div>
+          </div>
+
+          <div class="rest-card">Friday — Full Rest / Active Recovery (walk, light stretch)</div>
+        </div>
+        <div class="tip-box"><strong>In-season rule:</strong> Never train heavy legs within 48 hours of a game. Protect your freshness — performance on court matters more than gym numbers now.</div>
+      </div>
+    </div>
+
+    <div class="week-block" id="w29">
+      <div class="week-header" onclick="toggleWeek('w29')">
+        <div class="week-label">
+          <div class="week-num">WK 29–36</div>
+          <div><div class="week-title">Peak & 50 Pushup Test</div><div class="week-sub">Peak athleticism, unbroken 50</div></div>
+        </div>
+        <span class="week-chevron">▾</span>
+      </div>
+      <div class="week-body">
+        <div class="day-grid">
+          <div class="day-card c-calisthenics">
+            <div class="day-head"><div class="day-dot dot-calisthenics"></div><div class="day-name">Monday</div><div class="day-focus">50 Pushup Protocol</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Week 29: Ladder 10-9-8-7-6-5-5 = 50</div><div class="ex-sets">w/ 90s rest</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Week 31: Attempt 40 unbroken</div><div class="ex-sets">1 set</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Week 33: Attempt 45 unbroken</div><div class="ex-sets">1 set</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Week 36: 50 pushup test 🏆</div><div class="ex-sets">1 set</div></div>
+            </div>
+          </div>
+
+          <div class="day-card c-basketball">
+            <div class="day-head"><div class="day-dot dot-basketball"></div><div class="day-name">Season</div><div class="day-focus">Position Mastery — SG / SF</div></div>
+            <div class="day-exercises">
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Catch-and-shoot off screens</div><div class="ex-sets">Daily drills</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Perimeter defense + closeouts</div><div class="ex-sets">Daily drills</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Transition finishing (fast breaks)</div><div class="ex-sets">Daily drills</div></div>
+              <div class="exercise-item"><div class="ex-bullet"></div><div class="ex-name">Study SG film: Jaylen Brown, Donovan Mitchell</div><div class="ex-sets">Weekly</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="tip-box"><strong>You made it:</strong> If you've followed this plan, you're a competitive basketball player at Week 36. Your 6'1" frame, explosiveness from plyos, and strength base make you a genuine threat on the perimeter.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MILESTONES -->
+  <div class="phase-section" id="milestones">
+    <div class="phase-header">
+      <div class="phase-number">Progress Tracker</div>
+      <div class="phase-title">YOUR <span>MILESTONES</span></div>
+      <div class="phase-desc">Tap the circle when you hit each milestone. Track your journey from day one to competitive player.</div>
+    </div>
+
+    <div class="milestones-section">
+      <div class="milestone-row"><div class="m-week">Week 2</div><div class="m-text">Complete first full week without missing a session</div><div class="m-check" onclick="toggleMilestone(this)"></div></div>
+      <div class="milestone-row"><div class="m-week">Week 4</div><div class="m-text">10 clean full pushups in a row</div><div class="m-check" onclick="toggleMilestone(this)"></div></div>
+      <div class="milestone-row"><div class="m-week">Week 6</div><div class="m-text">15 pushups · Layup with both hands confidently</div><div class="m-check" onclick="toggleMilestone(this)"></div></div>
+      <div class="milestone-row"><div class="m-week">Week 8</div><div class="m-text">50% free throw percentage · Comfortable speed dribbling</div><div class="m-check" onclick="toggleMilestone(this)"></div></div>
+      <div class="milestone-row"><div class="m-week">Week 10</div><div class="m-text">First pickup game played 🏀</div><div class="m-check" onclick="toggleMilestone(this)"></div></div>
+      <div class="milestone-row"><div class="m-week">Week 14</div><div class="m-text">25 pushups · Noticeable leg strength gains</div><div class="m-check" onclick="toggleMilestone(this)"></div></div>
+      <div class="milestone-row"><div class="m-week">Week 18</div><div class="m-text">35 pushups · Signed up for amateur league</div><div class="m-check" onclick="toggleMilestone(this)"></div></div>
+      <div class="milestone-row"><div class="m-week">Week 22</div><div class="m-text">First competitive league game 🏆</div><div class="m-check" onclick="toggleMilestone(this)"></div></div>
+      <div class="milestone-row"><div class="m-week">Week 28</div><div class="m-text">45 pushups · Gained 4–6kg lean muscle</div><div class="m-check" onclick="toggleMilestone(this)"></div></div>
+      <div class="milestone-row"><div class="m-week">Week 36</div><div class="m-text">50 pushups unbroken · Completing full competitive season 🎯</div><div class="m-check" onclick="toggleMilestone(this)"></div></div>
+    </div>
+  </div>
+
+  <!-- MEMBERSHIP -->
+  <div class="phase-section" id="membership">
+    <div class="phase-header">
+      <div class="phase-number">The Verdict</div>
+      <div class="phase-title">SHOULD YOU <span>JOIN?</span></div>
+      <div class="phase-desc">You already have Wednesday gym access for free. Here's the honest breakdown.</div>
+    </div>
+
+    <div class="membership-card">
+      <div class="mc-head">Verdict: <span>Yes — but only from Phase 2</span></div>
+      <div class="mc-body">
+        <div class="verdict">
+          <div class="verdict-badge">✓ Recommended from Week 9</div>
+        </div>
+        <div class="mc-reason">
+          <p style="margin-bottom: 12px; color: var(--text);">For Phase 1 (Weeks 1–8), your college session covers what you need. Your Monday and Saturday sessions are bodyweight and court-based — no gym required. Save your money for now.</p>
+          <p style="margin-bottom: 10px; color: var(--muted);">From Week 9 onwards, a membership becomes genuinely worth it because:</p>
+          <ul class="mc-reason">
+            <li>You need heavy leg days (squats, deadlifts, split squats) that require a barbell — this is the #1 driver of your vertical jump and on-court explosiveness</li>
+            <li>Your college session is only 1 hour — not enough volume to split upper/lower as your training increases</li>
+            <li>At 64kg, consistent resistance work is the fastest way to add the functional mass you need for physical play</li>
+            <li>Tuesday leg sessions + Wednesday upper sessions is the ideal split, and you can't do both in one college session</li>
+          </ul>
+          <p style="margin-top: 14px; color: var(--muted);">Look for gyms with a <strong style="color: var(--text);">month-to-month contract</strong> — no need to lock in long term at first. Many gyms offer student discounts too, so ask specifically.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip-box" style="margin-top: 20px;"><strong>Bottom line:</strong> Phase 1 = college gym only. Phase 2+ = add your own membership, ~1–2 sessions per week on top of Wednesday. The cost pays for itself in athletic performance.</div>
+  </div>
+
+</div>
 
 <script>
-const canvas = document.getElementById("drawingCanvas");
-const ctx = canvas.getContext("2d");
-const colorPicker = document.getElementById("colorPicker");
-const brushSize = document.getElementById("brushSize");
-const drawModeBtn = document.getElementById("drawMode");
-const eraseModeBtn = document.getElementById("eraseMode");
+  function showPhase(id) {
+    document.querySelectorAll('.phase-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
-let drawing = false;
-let mode = "draw";
+  function toggleWeek(id) {
+    document.getElementById(id).classList.toggle('open');
+  }
 
-// Resize canvas to full window
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
-
-function startDrawing(e) {
-    drawing = true;
-    draw(e);
-}
-
-function stopDrawing() {
-    drawing = false;
-    ctx.beginPath();
-}
-
-function draw(e) {
-    if (!drawing) return;
-
-    const x = e.touches ? e.touches[0].clientX : e.clientX;
-    const y = e.touches ? e.touches[0].clientY : e.clientY;
-
-    ctx.lineWidth = brushSize.value;
-    ctx.lineCap = "round";
-
-    if (mode === "draw") {
-        ctx.globalCompositeOperation = "source-over";
-        ctx.strokeStyle = colorPicker.value;
-    } else {
-        ctx.globalCompositeOperation = "destination-out";
-    }
-
-    ctx.lineTo(x, y);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-}
-
-// Mode switching
-drawModeBtn.addEventListener("click", () => {
-    mode = "draw";
-    drawModeBtn.classList.add("active");
-    eraseModeBtn.classList.remove("active");
-});
-
-eraseModeBtn.addEventListener("click", () => {
-    mode = "erase";
-    eraseModeBtn.classList.add("active");
-    drawModeBtn.classList.remove("active");
-});
-
-// Mouse events
-canvas.addEventListener("mousedown", startDrawing);
-canvas.addEventListener("mouseup", stopDrawing);
-canvas.addEventListener("mouseout", stopDrawing);
-canvas.addEventListener("mousemove", draw);
-
-// Touch events
-canvas.addEventListener("touchstart", startDrawing);
-canvas.addEventListener("touchend", stopDrawing);
-canvas.addEventListener("touchcancel", stopDrawing);
-canvas.addEventListener("touchmove", draw);
-
-canvas.addEventListener("touchmove", function(e) {
-    e.preventDefault();
-}, { passive: false });
-
-function clearCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
-function toggleDarkMode() {
-    document.body.classList.toggle("dark");
-    alert("this took too long to code");
-}
+  function toggleMilestone(el) {
+    el.classList.toggle('done');
+    el.textContent = el.classList.contains('done') ? '✓' : '';
+  }
 </script>
-
 </body>
 </html>
